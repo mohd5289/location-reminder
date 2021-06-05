@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "122873667856",
+    "project_id": "chatme-3541c",
+    "storage_bucket": "chatme-3541c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122873667856:android:3705add8644157a0ec0595",
+        "android_client_info": {
+          "package_name": "com.udacity.project4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122873667856-7a9rd3s76cg9svkud96ccg0orrhdff9c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmHALSIHlQ_JOQW9lhnWvVV2_A27qv0tw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122873667856-7a9rd3s76cg9svkud96ccg0orrhdff9c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
