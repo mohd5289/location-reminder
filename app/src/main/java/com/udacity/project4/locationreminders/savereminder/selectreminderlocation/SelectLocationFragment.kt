@@ -86,7 +86,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         mapFragment.getMapAsync(this)
 
 //        TODO: zoom to the user location after taking his permission
-        //onLocationSelected()
+       // onLocationSelected()
 //        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 
