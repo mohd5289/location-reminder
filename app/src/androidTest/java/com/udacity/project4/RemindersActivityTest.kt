@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import android.os.SystemClock
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
@@ -12,6 +13,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.uiautomator.*
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -32,7 +34,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
-import androidx.test.uiautomator.UiDevice
+import java.util.regex.Pattern
 
 
 @RunWith(AndroidJUnit4::class)
@@ -145,8 +147,12 @@ class RemindersActivityTest :
 
         val device: UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        val marker: UiObject = device.findObject(UiSelector().descriptionContains("marker title"))
-        marker.click()
+
+        val bySelector = By.clazz(Pattern.compile(".*")).desc("Benedicts Sands. Sandy Point.").pkg("com.udacity.project4");
+        val DEFAULT_TIMEOUT= 1000L
+        device.wait(Until.hasObject(bySelector), DEFAULT_TIMEOUT);
+        device.findObject(bySelector).clickAndWait(Until.newWindow(), DEFAULT_TIMEOUT)
+        SystemClock.sleep(1000);
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
         Espresso.closeSoftKeyboard()
 

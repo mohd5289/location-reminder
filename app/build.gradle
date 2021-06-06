@@ -130,12 +130,13 @@ dependencies {
   //Espresso click on map
     androidTestImplementation('androidx.test:runner:1.1.0')
 
+    // Optional -- UI testing with UI Automator
+    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
     // Optional -- Hamcrest library
     androidTestImplementation("org.hamcrest:hamcrest-library:1.3")
     // Optional -- UI testing with Espresso
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0')
-    // Optional -- UI testing with UI Automator
-    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
-    
+
+
 
 }
