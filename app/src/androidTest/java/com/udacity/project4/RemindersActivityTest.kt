@@ -1,6 +1,5 @@
 package com.udacity.project4
 
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
@@ -8,25 +7,21 @@ import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
-
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import com.google.common.truth.Truth.assertThat
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.reminderslist.ReminderListFragment
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
-import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.EspressoIdlingResource
 import com.udacity.project4.util.monitorActivity
-import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
@@ -37,6 +32,8 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.koin.test.get
+import androidx.test.uiautomator.UiDevice
+
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
@@ -107,7 +104,13 @@ class RemindersActivityTest :
 
     @Test
     fun launchRemindersActivityWithOneReminder() {
-        val reminder = ReminderDTO("title", "description","location",(-360..360).random().toDouble(),(-360..360).random().toDouble())
+        val reminder = ReminderDTO(
+            "title",
+            "description",
+            "location",
+            (-360..360).random().toDouble(),
+            (-360..360).random().toDouble()
+        )
 
         runBlocking {
             repository.saveReminder(reminder)
@@ -132,14 +135,19 @@ class RemindersActivityTest :
         Espresso.onView(withId(R.id.noDataTextView))
             .check(ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
-        Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
-
-        Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
-        Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
         Espresso.onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Title"))
         Espresso.onView(withId(R.id.reminderDescription))
             .perform(ViewActions.typeText("Description"))
 
+        Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
+
+        Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
+
+        val device: UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val marker: UiObject = device.findObject(UiSelector().descriptionContains("marker title"))
+        marker.click()
+        Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
         Espresso.closeSoftKeyboard()
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())

@@ -189,6 +189,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                 _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }else{
                 Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
+               // _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }
 
         }
