@@ -1,19 +1,27 @@
 package com.udacity.project4
 
 import android.os.SystemClock
+import android.service.autofill.Validators.not
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.rule.ActivityTestRule
 import androidx.test.uiautomator.*
+
+import androidx.test.espresso.matcher.ViewMatchers.withText
+
+
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
@@ -25,6 +33,8 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.EspressoIdlingResource
 import com.udacity.project4.util.monitorActivity
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.core.Is.`is`
+import org.hamcrest.core.Is.isA
 import org.junit.*
 import org.junit.runner.RunWith
 import org.koin.android.ext.koin.androidContext
@@ -49,6 +59,10 @@ class RemindersActivityTest :
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
+    @Rule
+    var activityTestRule: ActivityTestRule<RemindersActivity> = ActivityTestRule<RemindersActivity>(
+        RemindersActivity::class.java
+    )
     @Before
     fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run {
         register(EspressoIdlingResource.countingIdlingResource)
@@ -132,6 +146,7 @@ class RemindersActivityTest :
     @Test
     fun addReminderAndNavigateBack() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
+  var activity = activityTestRule.activity
         dataBindingIdlingResource.monitorActivity(scenario)
 
         Espresso.onView(withId(R.id.noDataTextView))
@@ -154,6 +169,9 @@ class RemindersActivityTest :
         device.findObject(bySelector).clickAndWait(Until.newWindow(), DEFAULT_TIMEOUT)
         SystemClock.sleep(1000);
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not (is (activity.window.getDecorView())))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
         Espresso.closeSoftKeyboard()
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())

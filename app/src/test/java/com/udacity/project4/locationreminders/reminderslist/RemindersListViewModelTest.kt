@@ -9,7 +9,9 @@ import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
 import org.hamcrest.core.IsNot
 import org.junit.After
 import org.junit.Assert
@@ -97,12 +99,13 @@ class RemindersListViewModelTest {
 
     @Test
     fun returnError() {
-        fakeDataSource = FakeDataSource(null)
+        fakeDataSource = FakeDataSource()
+        fakeDataSource.setShouldReturnError(true)
         reminderListViewModel = RemindersListViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
         reminderListViewModel.loadReminders()
         Assert.assertThat(
             reminderListViewModel.showSnackBar.getOrAwaitValue(),
-            CoreMatchers.`is`("No reminders found")
+            CoreMatchers.`is`("Reminders not found")
         )
     }
 

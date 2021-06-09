@@ -52,7 +52,8 @@ class SaveReminderViewModelTest {
 
     @Test
     fun returnError() {
-        fakeDataSource = FakeDataSource(null)
+        fakeDataSource = FakeDataSource()
+        fakeDataSource.setShouldReturnError(true)
         saveReminderViewModel = SaveReminderViewModel(ApplicationProvider.getApplicationContext(), fakeDataSource)
         firstReminder.title = null
         saveReminderViewModel.validateAndSaveReminder(firstReminder)

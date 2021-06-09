@@ -6,27 +6,56 @@ import com.udacity.project4.locationreminders.data.dto.Result
 
 //Use FakeDataSource that acts as a test double to the LocalDataSource
 
-class FakeDataSource(var tasks: MutableList<ReminderDTO>? = mutableListOf()) : ReminderDataSource {
+class FakeDataSource(var reminders: MutableList<ReminderDTO> = mutableListOf()): ReminderDataSource {
 
-//    DONE: Create a fake data source to act as a double to the real data source
+    //    TODO: Create a fake data source to act as a double to the real data source
+    private var shouldReturnError = false
 
-    override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        tasks?.let { return Result.Success(it) }
-        return Result.Error("No reminders found")
+    fun setShouldReturnError(shouldReturn: Boolean) {
+        this.shouldReturnError = shouldReturn
     }
 
     override suspend fun saveReminder(reminder: ReminderDTO) {
-        tasks?.add(reminder)
-    }
-
-    override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        tasks?.firstOrNull { it.id == id }?.let { return Result.Success(it) }
-        return Result.Error("Reminder not found")
+        reminders.add(reminder)
     }
 
     override suspend fun deleteAllReminders() {
-        tasks = mutableListOf()
+        reminders.clear()
     }
+
+    override suspend fun getReminders(): Result<List<ReminderDTO>> {
+
+        if (shouldReturnError){
+            return Result.Error("Reminders not found", 404)
+        }else{
+            return return Result.Success(ArrayList(reminders))
+        }
+
+    }
+
+
+    override suspend fun getReminder(id: String): Result<ReminderDTO> {
+
+        if(shouldReturnError){
+
+            return Result.Error("Error")
+
+        }else{
+
+            val reminder = reminders.find { it.id == id }
+
+            if (reminder != null) {
+                return Result.Success(reminder)
+            } else {
+                return Result.Error("Reminder not found", 404)
+            }
+
+        }
+
+
+    }
+
+
 
 
 }

@@ -107,7 +107,12 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
      */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
+        map.setMapStyle(
+            MapStyleOptions.loadRawResourceStyle(
+                requireContext(),
+                R.raw.map_style
+            )
+        )
         //Default location
         val sydney = LatLng(-34.0, 151.0)
         val zoomLevel = 15f
