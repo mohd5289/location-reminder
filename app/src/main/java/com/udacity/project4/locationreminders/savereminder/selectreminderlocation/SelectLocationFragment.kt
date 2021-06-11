@@ -137,8 +137,9 @@ private lateinit var address: String
 
             poiMarker.showInfoWindow()
 
-
+             onLocationSelected()
         }
+
     }
     fun getAddress(lat: Double, lng: Double):String {
         var address = ""
@@ -208,8 +209,8 @@ private lateinit var address: String
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 
             )
-            _viewModel.latitude.value = latLng.latitude
-            _viewModel.longitude.value = latLng.longitude
+
+             onLocationSelected()
         }
 
     }
@@ -223,13 +224,13 @@ private lateinit var address: String
 
             if(this::address.isInitialized){
 
-   _viewModel.reminderSelectedLocationStr.value = address
+                _viewModel.reminderSelectedLocationStr.value = address
                 _viewModel.latitude.value = latAndLng.latitude
                 _viewModel.longitude.value = latAndLng.longitude
                 _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }
 
-          else if (this::pointOfInterest.isInitialized){
+            else if (this::pointOfInterest.isInitialized){
                 _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
                 _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
@@ -237,7 +238,7 @@ private lateinit var address: String
                 _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }else{
                 Toast.makeText(context, "Please select a location", Toast.LENGTH_LONG).show()
-               // _viewModel.navigationCommand.postValue(NavigationCommand.Back)
+                // _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }
 
         }
