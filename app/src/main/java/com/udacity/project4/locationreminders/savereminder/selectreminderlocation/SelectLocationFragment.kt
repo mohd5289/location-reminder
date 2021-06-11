@@ -2,53 +2,38 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Transformations.map
-import androidx.lifecycle.observe
-
-
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
-import com.udacity.project4.authentication.AuthenticationActivity.Companion.TAG
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.locationreminders.RemindersActivity
-import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-
-import com.udacity.project4.utils.PermissionsResultEvent
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
-
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.IOException
 import java.util.*
+import kotlin.properties.Delegates
+
 
 class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
+
+    private lateinit var latAndLng:LatLng
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -60,7 +45,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     //private lateinit var lastLocation: Location
     //private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-
+private lateinit var address: String
     private val FINE_LOCATION_ACCESS_REQUEST_CODE = 1
 
     private lateinit var pointOfInterest: PointOfInterest
@@ -86,7 +71,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         mapFragment.getMapAsync(this)
 
 //        TODO: zoom to the user location after taking his permission
-       // onLocationSelected()
+      //  onLocationSelected()
 //        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 
@@ -121,9 +106,10 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
         map.uiSettings.isZoomControlsEnabled = true
 
         enableUserLocation()
+      setLocationClick(map)
         setPoiClickListener(map)
 
-        onLocationSelected()
+       // onLocationSelected()
 
     }
 
@@ -144,8 +130,8 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                 CircleOptions()
                     .center(poi.latLng)
                     .radius(200.0)
-                    .strokeColor(Color.argb(255,255,0,0))
-                    .fillColor(Color.argb(64,255,0,0)).strokeWidth(4F)
+                    .strokeColor(Color.argb(255, 255, 0, 0))
+                    .fillColor(Color.argb(64, 255, 0, 0)).strokeWidth(4F)
 
             )
 
@@ -154,7 +140,53 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
 
         }
     }
-
+    fun getAddress(lat: Double, lng: Double):String {
+        var address = ""
+        val geocoder = Geocoder(context, Locale.getDefault())
+        try {
+            val addresses: List<Address> = geocoder.getFromLocation(lat, lng, 1)
+            val obj: Address = addresses[0]
+            var add: String = obj.getAddressLine(0)
+            add = """
+            $add
+            ${obj.getCountryName()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getCountryCode()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getAdminArea()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getPostalCode()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getSubAdminArea()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getLocality()}
+            """.trimIndent()
+            add = """
+            $add
+            ${obj.getSubThoroughfare()}
+            """.trimIndent()
+            Log.v("IGA", "Address$add")
+            // Toast.makeText(this, "Address=>" + add,
+            // Toast.LENGTH_SHORT).show();
+          address= add
+            // TennisAppActivity.showDialog(add);
+        } catch (e: IOException) {
+            // TODO Auto-generated catch block
+            e.printStackTrace()
+            Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
+        }
+    return address
+    }
     private fun setLocationClick(map: GoogleMap){
 
         map.setOnMapClickListener { latLng ->
@@ -166,7 +198,8 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                 latLng.latitude,
                 latLng.longitude
             )
-
+  latAndLng= latLng
+ address= getAddress(latLng.latitude,latLng.longitude)
             map.addMarker(
                 MarkerOptions()
                     .position(latLng)
@@ -175,7 +208,10 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 
             )
+            _viewModel.latitude.value = latLng.latitude
+            _viewModel.longitude.value = latLng.longitude
         }
+
     }
 
     private fun onLocationSelected() {
@@ -185,8 +221,15 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
 
         binding.saveLocation.setOnClickListener{
 
+            if(this::address.isInitialized){
 
-            if (this::pointOfInterest.isInitialized){
+   _viewModel.reminderSelectedLocationStr.value = address
+                _viewModel.latitude.value = latAndLng.latitude
+                _viewModel.longitude.value = latAndLng.longitude
+                _viewModel.navigationCommand.postValue(NavigationCommand.Back)
+            }
+
+          else if (this::pointOfInterest.isInitialized){
                 _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
                 _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
@@ -230,7 +273,8 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     private fun isLocationPermissionGranted(): Boolean {
         return ActivityCompat.checkSelfPermission(
             requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
 
@@ -241,7 +285,10 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     private fun enableUserLocation() {
 
         when {
-            (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) -> {
+            (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED) -> {
 
                 // You can use the API that requires the permission.
                 map.isMyLocationEnabled = true
@@ -258,7 +305,10 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                 }*/
                 Toast.makeText(context, "Location permission is granted.", Toast.LENGTH_LONG).show()
             }
-            (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) ->{
+            (ActivityCompat.shouldShowRequestPermissionRationale(
+                requireActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )) ->{
                 // Explain why you need the permission
                 // Add dialog
                 requestPermissions(
@@ -277,7 +327,11 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
 
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // Check if location permissions are granted and if so enable the location
 
@@ -294,7 +348,11 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                     // At the same time, respect the user's decision. Don't link to
                     // system settings in an effort to convince the user to change
                     // their decision.
-                    Toast.makeText(context, "Location permission was not granted.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        "Location permission was not granted.",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
 
             }
