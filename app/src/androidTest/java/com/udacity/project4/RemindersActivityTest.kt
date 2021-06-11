@@ -59,10 +59,10 @@ class RemindersActivityTest :
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
-    //@Rule
-  //  var activityTestRule: ActivityTestRule<RemindersActivity> = ActivityTestRule<RemindersActivity>(
-    //    RemindersActivity::class.java
-    //)
+    @Rule
+    var activityTestRule: ActivityTestRule<RemindersActivity> = ActivityTestRule<RemindersActivity>(
+        RemindersActivity::class.java
+    )
     @Before
     fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run {
         register(EspressoIdlingResource.countingIdlingResource)
@@ -146,7 +146,7 @@ class RemindersActivityTest :
     @Test
     fun addReminderAndNavigateBack() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
- // var activity = activityTestRule.activity
+  var activity = activityTestRule.activity
         dataBindingIdlingResource.monitorActivity(scenario)
 
         Espresso.onView(withId(R.id.noDataTextView))
@@ -169,8 +169,8 @@ class RemindersActivityTest :
         //device.findObject(bySelector).clickAndWait(Until.newWindow(), DEFAULT_TIMEOUT)
         //SystemClock.sleep(1000);
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
-   //     onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not (`is` (activity.window.getDecorView()))))
-     //       .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not (`is` (activity.window.getDecorView()))))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         Espresso.closeSoftKeyboard()
 

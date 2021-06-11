@@ -25,10 +25,8 @@ import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.IOException
 import java.util.*
-import kotlin.properties.Delegates
 
 
 class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
@@ -141,74 +139,76 @@ private lateinit var address: String
         }
 
     }
-    fun getAddress(lat: Double, lng: Double):String {
-        var address = ""
-        val geocoder = Geocoder(context, Locale.getDefault())
-        try {
-            val addresses: List<Address> = geocoder.getFromLocation(lat, lng, 1)
-            val obj: Address = addresses[0]
-            var add: String = obj.getAddressLine(0)
-            add = """
-            $add
-            ${obj.getCountryName()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getCountryCode()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getAdminArea()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getPostalCode()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getSubAdminArea()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getLocality()}
-            """.trimIndent()
-            add = """
-            $add
-            ${obj.getSubThoroughfare()}
-            """.trimIndent()
-            Log.v("IGA", "Address$add")
+  //  fun getAddress(lat: Double, lng: Double):String {
+     //   var address = ""
+    //    val geocoder = Geocoder(context, Locale.getDefault())
+    //    try {
+      //      val addresses: List<Address> = geocoder.getFromLocation(lat, lng, 1)
+        //    val obj: Address = addresses[0]
+        //    var add: String = obj.getAddressLine(0)
+    //        add = """
+    //        $add
+     //       ${obj.getCountryName()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getCountryCode()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getAdminArea()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getPostalCode()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getSubAdminArea()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getLocality()}
+     //       """.trimIndent()
+     //       add = """
+     //       $add
+     //       ${obj.getSubThoroughfare()}
+     //       """.trimIndent()
+      //      Log.v("IGA", "Address$add")
             // Toast.makeText(this, "Address=>" + add,
             // Toast.LENGTH_SHORT).show();
-          address= add
+        //  address= add
             // TennisAppActivity.showDialog(add);
-        } catch (e: IOException) {
+       // } catch (e: IOException) {
             // TODO Auto-generated catch block
-            e.printStackTrace()
-            Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
-        }
-    return address
-    }
+         //   e.printStackTrace()
+         //   Toast.makeText(activity, e.localizedMessage, Toast.LENGTH_SHORT).show()
+      //  }
+   // return address
+    //}
     private fun setLocationClick(map: GoogleMap){
 
         map.setOnMapClickListener { latLng ->
-            // A Snippet is Additional text that's displayed below the title.
             map.clear()
-            val snippet = String.format(
-                Locale.getDefault(),
-                getString(R.string.lat_long_snippet),
-                latLng.latitude,
-                latLng.longitude
-            )
-  latAndLng= latLng
- address= getAddress(latLng.latitude,latLng.longitude)
-            map.addMarker(
+
+            pointOfInterest = PointOfInterest(latLng, null, null)
+
+            val poiMarker = map.addMarker(
                 MarkerOptions()
-                    .position(latLng)
-                    .title(getString(R.string.dropped_pin))
-                    .snippet(snippet)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                    .position(pointOfInterest.latLng)
+                    .title(pointOfInterest.name)
+            )
+
+            map.addCircle(
+                CircleOptions()
+                    .center(pointOfInterest.latLng)
+                    .radius(200.0)
+                    .strokeColor(Color.argb(255, 255, 0, 0))
+                    .fillColor(Color.argb(64, 255, 0, 0)).strokeWidth(4F)
 
             )
+
+            poiMarker.showInfoWindow()
 
              onLocationSelected()
         }
@@ -221,16 +221,7 @@ private lateinit var address: String
         //         and navigate back to the previous fragment to save the reminder and add the geofence
 
         binding.saveLocation.setOnClickListener{
-
-            if(this::address.isInitialized){
-
-                _viewModel.reminderSelectedLocationStr.value = address
-                _viewModel.latitude.value = latAndLng.latitude
-                _viewModel.longitude.value = latAndLng.longitude
-                _viewModel.navigationCommand.postValue(NavigationCommand.Back)
-            }
-
-            else if (this::pointOfInterest.isInitialized){
+            if (this::pointOfInterest.isInitialized){
                 _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
                 _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
