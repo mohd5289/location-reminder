@@ -1,5 +1,6 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.os.SystemClock
 import org.hamcrest.CoreMatchers.not
 import androidx.test.core.app.ActivityScenario
@@ -59,10 +60,8 @@ class RemindersActivityTest :
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
-    @Rule
-    var activityTestRule: ActivityTestRule<RemindersActivity> = ActivityTestRule<RemindersActivity>(
-        RemindersActivity::class.java
-    )
+
+
     @Before
     fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run {
         register(EspressoIdlingResource.countingIdlingResource)
@@ -142,12 +141,18 @@ class RemindersActivityTest :
         Espresso.onView(ViewMatchers.withText(reminder.location))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
+    private fun getActivity(activityScenario: ActivityScenario<RemindersActivity>): Activity? {
+        var activity: Activity? = null
+        activityScenario.onActivity {
+            activity = it
+        }
+        return activity
+    }
 
     @Test
     fun addReminderAndNavigateBack() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
-  var activity = activityTestRule.activity
-        dataBindingIdlingResource.monitorActivity(scenario)
+  var activity = getActivity(scenario)
 
         Espresso.onView(withId(R.id.noDataTextView))
             .check(ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
@@ -169,7 +174,7 @@ class RemindersActivityTest :
         //device.findObject(bySelector).clickAndWait(Until.newWindow(), DEFAULT_TIMEOUT)
         //SystemClock.sleep(1000);
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
-        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not (`is` (activity.window.getDecorView()))))
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not ((activity?.window?.getDecorView()))))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         Espresso.closeSoftKeyboard()

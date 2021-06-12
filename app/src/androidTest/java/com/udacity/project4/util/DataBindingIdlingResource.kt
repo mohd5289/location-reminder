@@ -73,6 +73,7 @@ class DataBindingIdlingResource : IdlingResource {
      * Find all binding classes in all currently available fragments.
      */
     private fun getBindings(): List<ViewDataBinding> {
+       // activity = this.activity
         val fragments = (activity as? FragmentActivity)
             ?.supportFragmentManager
             ?.fragments
