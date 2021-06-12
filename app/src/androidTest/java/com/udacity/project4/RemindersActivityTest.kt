@@ -119,6 +119,7 @@ class RemindersActivityTest :
 
     @Test
     fun launchRemindersActivityWithOneReminder() {
+
         val reminder = ReminderDTO(
             "title",
             "description",
@@ -132,6 +133,7 @@ class RemindersActivityTest :
         }
 
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
+
         dataBindingIdlingResource.monitorActivity(scenario)
 
         Espresso.onView(ViewMatchers.withText(reminder.title))
@@ -153,7 +155,7 @@ class RemindersActivityTest :
     fun addReminderAndNavigateBack() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
   var activity = getActivity(scenario)
-
+        dataBindingIdlingResource.monitorActivity(scenario)
         Espresso.onView(withId(R.id.noDataTextView))
             .check(ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
         Espresso.onView(withId(R.id.addReminderFAB)).perform(ViewActions.click())
