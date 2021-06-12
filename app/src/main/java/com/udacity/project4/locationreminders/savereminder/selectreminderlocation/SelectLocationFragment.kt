@@ -18,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -134,7 +135,10 @@ private lateinit var address: String
             )
 
             poiMarker.showInfoWindow()
-
+            Snackbar.make(
+                binding.root,
+                R.string.point_clicked, Snackbar.LENGTH_SHORT
+            ).show()
              onLocationSelected()
         }
 
@@ -209,7 +213,10 @@ private lateinit var address: String
             )
 
             poiMarker.showInfoWindow()
-
+            Snackbar.make(
+                binding.root,
+                R.string.point_clicked, Snackbar.LENGTH_SHORT
+            ).show()
              onLocationSelected()
         }
 
@@ -224,7 +231,7 @@ private lateinit var address: String
             if (this::pointOfInterest.isInitialized){
                 _viewModel.latitude.value = pointOfInterest.latLng.latitude
                 _viewModel.longitude.value = pointOfInterest.latLng.longitude
-                _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
+                //_viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
                 _viewModel.selectedPOI.value = pointOfInterest
                 _viewModel.navigationCommand.postValue(NavigationCommand.Back)
             }else{
@@ -302,11 +309,14 @@ private lateinit var address: String
                 Manifest.permission.ACCESS_FINE_LOCATION
             )) ->{
                 // Explain why you need the permission
+
                 // Add dialog
                 requestPermissions(
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                     FINE_LOCATION_ACCESS_REQUEST_CODE
                 )
+
+
             }
 
             else ->
@@ -332,6 +342,7 @@ private lateinit var address: String
 
                 if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     // Permission is granted. Continue...
+
                     enableUserLocation()
 
                 } else {

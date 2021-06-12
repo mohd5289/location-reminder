@@ -18,8 +18,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -105,7 +107,7 @@ class SaveReminderFragment : BaseFragment() {
                     }
                 })
         }
-        }
+    }
 
     private fun createAndAddGeofence() {
         val title = _viewModel.reminderTitle.value
@@ -127,103 +129,111 @@ class SaveReminderFragment : BaseFragment() {
     }
 
     @SuppressLint("MissingPermission")
-        private fun addGeofence(latLng: LatLng, radius: Float, geofenceId: String) {
-            val geofence: Geofence = geofenceHelper.getGeofence(
-                geofenceId,
-                latLng,
-                radius,
-                Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT
-            )
-            val geofencingRequest: GeofencingRequest = geofenceHelper.getGeofencingRequest(geofence)
-            val pendingIntent: PendingIntent? = geofenceHelper.getGeofencePendingIntent()
-            geofencingClient.addGeofences(geofencingRequest, pendingIntent)
-                .addOnSuccessListener(OnSuccessListener<Void?> {
-                    // Toast.makeText(context,"geofence added",Toast.LENGTH_LONG).show()
-                    Log.d(TAG, "Geofence Added")
-                })
-                .addOnFailureListener(OnFailureListener { e ->
-                    val errorMessage: String = geofenceHelper.getErrorString(e)
-                    Toast.makeText(
-                        context,
-                        "Please give background location permission",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    Log.d(TAG, "fail in creating geofence: $errorMessage")
-                })
-        }
+    private fun addGeofence(latLng: LatLng, radius: Float, geofenceId: String) {
+        val geofence: Geofence = geofenceHelper.getGeofence(
+            geofenceId,
+            latLng,
+            radius,
+            Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT
+        )
+        val geofencingRequest: GeofencingRequest = geofenceHelper.getGeofencingRequest(geofence)
+        val pendingIntent: PendingIntent? = geofenceHelper.getGeofencePendingIntent()
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+            .addOnSuccessListener(OnSuccessListener<Void?> {
+                // Toast.makeText(context,"geofence added",Toast.LENGTH_LONG).show()
+                Log.d(TAG, "Geofence Added")
+            })
+            .addOnFailureListener(OnFailureListener { e ->
+                val errorMessage: String = geofenceHelper.getErrorString(e)
+                Toast.makeText(
+                    context,
+                    "Please give background location permission",
+                    Toast.LENGTH_LONG
+                ).show()
+                Log.d(TAG, "fail in creating geofence: $errorMessage")
+            })
+    }
 
-        @TargetApi(29)
-        private fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
-            val foregroundLocationApproved = (
-                    PackageManager.PERMISSION_GRANTED ==
-                            ActivityCompat.checkSelfPermission(
-                                this.requireContext(),
-                                Manifest.permission.ACCESS_FINE_LOCATION
-                            ))
-            val backgroundPermissionApproved =
-                if (runningQOrLater) {
-                    PackageManager.PERMISSION_GRANTED ==
-                            ActivityCompat.checkSelfPermission(
-                                this.requireContext(),
-                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                            )
-                } else {
-                    true
-                }
-            return foregroundLocationApproved && backgroundPermissionApproved
-        }
-
-        @TargetApi(29)
-        private fun requestForegroundAndBackgroundLocationPermissions() {
-            if (foregroundAndBackgroundLocationPermissionApproved())
-                return
-
-            // Else request the permission
-            // this provides the result[LOCATION_PERMISSION_INDEX]
-            var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-            val resultCode = when {
-                runningQOrLater -> {
-                    // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
-                    permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                    Companion.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-                }
-                else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+    @TargetApi(29)
+    private fun foregroundAndBackgroundLocationPermissionApproved(): Boolean {
+        val foregroundLocationApproved = (
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(
+                            this.requireContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ))
+        val backgroundPermissionApproved =
+            if (runningQOrLater) {
+                PackageManager.PERMISSION_GRANTED ==
+                        ActivityCompat.checkSelfPermission(
+                            this.requireContext(),
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                        )
+            } else {
+                true
             }
+        return foregroundLocationApproved && backgroundPermissionApproved
+    }
 
-            Log.d(TAG, "Request foreground only location permission")
-            ActivityCompat.requestPermissions(
-                this.requireActivity(),
-                permissionsArray,
-                resultCode
-            )
+
+    @TargetApi(29)
+    private fun requestForegroundAndBackgroundLocationPermissions() {
+        if (foregroundAndBackgroundLocationPermissionApproved())
+            return
+
+        // Else request the permission
+        // this provides the result[LOCATION_PERMISSION_INDEX]
+        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        val resultCode = when {
+            runningQOrLater -> {
+                // this provides the result[BACKGROUND_LOCATION_PERMISSION_INDEX]
+                permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                Companion.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
+            }
+            else -> REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
         }
+
+        Log.d(TAG, "Request foreground only location permission")
+        requestPermissions( permissionsArray,  resultCode)
+
+    //    ActivityCompat.requestPermissions(
+      //      this.requireActivity(),
+      //      permissionsArray,
+      //      resultCode
+      //  )
+    }
 
         override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<String>,
             grantResults: IntArray
         ) {
-            Log.d(TAG, "onRequestPermissionResult")
+        //    Log.d(TAG, "onRequestPermissionResult")
+       if (
+           grantResults.isEmpty() ||
+           grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
+              (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
+                    grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
+                     PackageManager.PERMISSION_DENIED)
+         ) {
+           Toast.makeText(
+             this.requireContext(),
+             R.string.permission_denied_explanation, Toast.LENGTH_SHORT
+         ).show()
+    // Permission denied.
 
-            if (
-                grantResults.isEmpty() ||
-                grantResults[LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
-                (requestCode == REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
-                        grantResults[BACKGROUND_LOCATION_PERMISSION_INDEX] ==
-                        PackageManager.PERMISSION_DENIED)
-            ) {
-                Toast.makeText(
-                    this.requireContext(),
-                    R.string.permission_denied_explanation, Toast.LENGTH_SHORT
-                ).show()
-                // Permission denied.
-
-            } else {
-                checkDeviceLocationSettingsAndStartGeofence()
-            }
+       } else {
+         checkDeviceLocationSettingsAndStartGeofence()
+         }
         }
-
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_TURN_DEVICE_LOCATION_ON) {
+            // We don't rely on the result code, but just check the location setting again
+            checkDeviceLocationSettingsAndStartGeofence(false)
+        }
+    }
 
         override fun onDestroy() {
             super.onDestroy()
@@ -242,22 +252,26 @@ class SaveReminderFragment : BaseFragment() {
             locationSettingsResponseTask.addOnFailureListener { exception ->
                 if (exception is ResolvableApiException && resolve) {
                     try {
-                        exception.startResolutionForResult(
-                            activity!!,
-                            REQUEST_TURN_DEVICE_LOCATION_ON
-                        )
+                        startIntentSenderForResult(exception.getResolution().getIntentSender(),   REQUEST_TURN_DEVICE_LOCATION_ON,
+                            null, 0, 0, 0, null)
+
                     } catch (sendEx: IntentSender.SendIntentException) {
                         Log.d(TAG, "Error getting location settings resolution: " + sendEx.message)
                     }
                 } else {
                     // Explain user why app needs this permission
-                    createAndAddGeofence()
+                    Snackbar.make(
+                        binding.root,
+                        R.string.location_required_error, Snackbar.LENGTH_INDEFINITE
+                    ).setAction(android.R.string.ok) {
+                        checkDeviceLocationSettingsAndStartGeofence()
+                    }.show()
                 }
             }
 
             locationSettingsResponseTask.addOnCompleteListener {
                 if (it.isSuccessful) {
-
+                    createAndAddGeofence()
             }
         }
     }

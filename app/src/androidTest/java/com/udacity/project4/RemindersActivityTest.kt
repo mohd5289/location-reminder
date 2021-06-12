@@ -34,6 +34,7 @@ import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.EspressoIdlingResource
 import com.udacity.project4.util.monitorActivity
 import kotlinx.coroutines.runBlocking
+import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.core.Is.`is`
 import org.hamcrest.core.Is.isA
 import org.junit.*
@@ -60,7 +61,7 @@ class RemindersActivityTest :
 
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
-
+   // private lateinit var saveReminderViewModel: SaveReminderViewModel
 
     @Before
     fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run {
@@ -165,8 +166,10 @@ class RemindersActivityTest :
 
         Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
 
-        Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
 
+        Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
+        onView(withId(com.google.android.material.R.id.snackbar_text))
+            .check(matches(withText(R.string.point_clicked)))
        // val device: UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
 
