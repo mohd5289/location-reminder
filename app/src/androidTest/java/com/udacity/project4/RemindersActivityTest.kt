@@ -155,7 +155,7 @@ class RemindersActivityTest :
     @Test
     fun addReminderAndNavigateBack() {
         val scenario = ActivityScenario.launch(RemindersActivity::class.java)
-  var activity = getActivity(scenario)
+   var activity = getActivity(scenario)
         dataBindingIdlingResource.monitorActivity(scenario)
         Espresso.onView(withId(R.id.noDataTextView))
             .check(ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))
@@ -173,7 +173,7 @@ class RemindersActivityTest :
             .check(matches(withText(R.string.point_clicked)))
        // val device: UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-
+        Thread.sleep(5000)
        // val bySelector = By.clazz(Pattern.compile(".*")).desc("Benedicts Sands. Sandy Point.").pkg("com.udacity.project4");
        // val DEFAULT_TIMEOUT= 1000L
        // device.wait(Until.hasObject(bySelector), DEFAULT_TIMEOUT);
