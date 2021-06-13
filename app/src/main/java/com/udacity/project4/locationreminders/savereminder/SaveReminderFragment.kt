@@ -140,7 +140,8 @@ class SaveReminderFragment : BaseFragment() {
                     description,
                     location,
                     latitude,
-                    longitude
+                    longitude,
+                    geofenceId
                 ))
 
             })
