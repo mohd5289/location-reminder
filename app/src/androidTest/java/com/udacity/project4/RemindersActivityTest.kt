@@ -163,7 +163,7 @@ class RemindersActivityTest :
         Espresso.onView(withId(R.id.reminderTitle)).perform(ViewActions.typeText("Title"))
         Espresso.onView(withId(R.id.reminderDescription))
             .perform(ViewActions.typeText("Description"))
-
+        Espresso.closeSoftKeyboard()
         Espresso.onView(withId(R.id.selectLocation)).perform(ViewActions.click())
 
 
@@ -181,7 +181,7 @@ class RemindersActivityTest :
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
 
 
-        Espresso.closeSoftKeyboard()
+
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
         onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not ((activity?.window?.getDecorView()))))
