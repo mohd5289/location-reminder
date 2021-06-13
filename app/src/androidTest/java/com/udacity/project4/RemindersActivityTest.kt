@@ -179,12 +179,13 @@ class RemindersActivityTest :
         //device.findObject(bySelector).clickAndWait(Until.newWindow(), DEFAULT_TIMEOUT)
         //SystemClock.sleep(1000);
         Espresso.onView(withId(R.id.save_location)).perform(ViewActions.click())
-        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not ((activity?.window?.getDecorView()))))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
 
         Espresso.closeSoftKeyboard()
 
         Espresso.onView(withId(R.id.saveReminder)).perform(ViewActions.click())
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not ((activity?.window?.getDecorView()))))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(withId(R.id.noDataTextView))
             .check(ViewAssertions.matches(ViewMatchers.withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
         Espresso.onView(ViewMatchers.withText("Title"))
