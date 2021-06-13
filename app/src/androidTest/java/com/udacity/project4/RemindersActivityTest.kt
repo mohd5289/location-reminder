@@ -168,6 +168,7 @@ class RemindersActivityTest :
 
 
         Espresso.onView(withId(R.id.map)).perform(ViewActions.click())
+        Thread.sleep(1000)
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText(R.string.point_clicked)))
        // val device: UiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
