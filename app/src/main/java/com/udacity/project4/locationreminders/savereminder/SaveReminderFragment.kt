@@ -80,22 +80,10 @@ class SaveReminderFragment : BaseFragment() {
         }
 
         binding.saveReminder.setOnClickListener {
-            val title = _viewModel.reminderTitle.value
-            val description = _viewModel.reminderDescription.value
-            val location = _viewModel.reminderSelectedLocationStr.value
-            val latitude = _viewModel.latitude.value
-            val longitude = _viewModel.longitude.value
+
             checkDeviceLocationSettingsAndStartGeofence()
 //             2) save the reminder to the local db
-            _viewModel.validateAndSaveReminder(
-                ReminderDataItem(
-                    title,
-                    description,
-                    location,
-                    latitude,
-                    longitude
-                )
-            )
+
 
             _viewModel.navigateToReminderList.observe(
                 viewLifecycleOwner,
@@ -142,6 +130,19 @@ class SaveReminderFragment : BaseFragment() {
             .addOnSuccessListener(OnSuccessListener<Void?> {
                 // Toast.makeText(context,"geofence added",Toast.LENGTH_LONG).show()
                 Log.d(TAG, "Geofence Added")
+                val title = _viewModel.reminderTitle.value
+                val description = _viewModel.reminderDescription.value
+                val location = _viewModel.reminderSelectedLocationStr.value
+                val latitude = _viewModel.latitude.value
+                val longitude = _viewModel.longitude.value
+                _viewModel.validateAndSaveReminder( ReminderDataItem(
+                    title,
+                    description,
+                    location,
+                    latitude,
+                    longitude
+                ))
+
             })
             .addOnFailureListener(OnFailureListener { e ->
                 val errorMessage: String = geofenceHelper.getErrorString(e)

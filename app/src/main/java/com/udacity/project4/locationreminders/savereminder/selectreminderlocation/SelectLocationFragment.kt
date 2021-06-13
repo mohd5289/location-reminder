@@ -113,7 +113,7 @@ private lateinit var address: String
     }
 
     private fun setPoiClickListener(map: GoogleMap) {
-
+        map.clear()
         map.setOnPoiClickListener { poi ->
 
             map.clear()
@@ -191,7 +191,7 @@ private lateinit var address: String
    // return address
     //}
     private fun setLocationClick(map: GoogleMap){
-
+      map.clear()
         map.setOnMapClickListener { latLng ->
             map.clear()
 
